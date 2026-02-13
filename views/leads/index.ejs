@@ -1,0 +1,152 @@
+<%
+  pageTitle = 'Leads';
+%>
+<%- include('../partials/header') %>
+
+<!-- Follow-up reminder banner -->
+<% if (followUpsToday > 0) { %>
+<div class="followup-banner">
+  <span class="icon">🔔</span>
+  <div>
+    <strong>You have <%= followUpsToday %> follow-up<%= followUpsToday > 1 ? 's' : '' %> today!</strong>
+    — Check leads highlighted in orange below.
+  </div>
+</div>
+<% } %>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div>
+    <h2 class="page-title">All Leads</h2>
+    <p class="page-subtitle"><%= leads.length %> lead<%= leads.length !== 1 ? 's' : '' %> found</p>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <% if (user.role === 'admin') { %>
+    <a href="/leads/export/excel" class="btn btn-success">📤 Export Excel</a>
+    <% } %>
+    <a href="/leads/new" class="btn btn-primary">➕ Add Lead</a>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="padding:16px; margin-bottom:16px;">
+  <form method="GET" action="/leads" class="filters-bar auto-submit">
+    <!-- Search -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search name, email, phone..."
+        value="<%= filters.search || '' %>"
+        style="min-width:220px;"
+      >
+    </div>
+
+    <!-- Status Filter -->
+    <select name="status" class="form-control" style="max-width:160px;">
+      <option value="all" <%= !filters.status || filters.status === 'all' ? 'selected' : '' %>>All Status</option>
+      <option value="New" <%= filters.status === 'New' ? 'selected' : '' %>>🔵 New</option>
+      <option value="In Progress" <%= filters.status === 'In Progress' ? 'selected' : '' %>>🟠 In Progress</option>
+      <option value="Closed" <%= filters.status === 'Closed' ? 'selected' : '' %>>🟢 Closed</option>
+    </select>
+
+    <!-- BDE Filter (Admin only) -->
+    <% if (user.role === 'admin' && bdeUsers.length > 0) { %>
+    <select name="bde" class="form-control" style="max-width:160px;">
+      <option value="">All BDEs</option>
+      <% bdeUsers.forEach(bde => { %>
+      <option value="<%= bde.id %>" <%= filters.bde == bde.id ? 'selected' : '' %>><%= bde.name %></option>
+      <% }) %>
+    </select>
+    <% } %>
+
+    <button type="submit" class="btn btn-outline">Filter</button>
+    <a href="/leads" class="btn btn-ghost">Clear</a>
+  </form>
+</div>
+
+<!-- Leads Table -->
+<div class="card" style="padding:0; overflow:hidden;">
+  <% if (leads.length === 0) { %>
+    <div class="empty-state" style="padding:60px;">
+      <div class="icon">📋</div>
+      <p>No leads found. Try adjusting your filters.</p>
+      <a href="/leads/new" class="btn btn-primary" style="margin-top:8px;">Add First Lead</a>
+    </div>
+  <% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lead Details</th>
+          <th>Source</th>
+          <th>Project / Budget</th>
+          <th>Status</th>
+          <th>Follow-Up</th>
+          <% if (user.role === 'admin') { %>
+          <th>BDE</th>
+          <% } %>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% leads.forEach((lead, idx) => {
+          const isToday = lead.follow_up_date && moment(lead.follow_up_date).format('YYYY-MM-DD') === today;
+        %>
+        <tr class="<%= isToday ? 'today-follow-up' : '' %>">
+          <td style="color:#94a3b8; font-size:12px;"><%= idx + 1 %></td>
+          <td>
+            <div class="lead-name"><%= lead.name %></div>
+            <% if (lead.email) { %><div class="lead-email"><%= lead.email %></div><% } %>
+            <% if (lead.phone) { %><div class="lead-phone">📞 <%= lead.phone %></div><% } %>
+          </td>
+          <td><span class="source-tag"><%= lead.source %></span></td>
+          <td>
+            <div style="font-size:13px;"><%= lead.project_type || '—' %></div>
+            <% if (lead.budget) { %><div style="font-size:12px; color:#10b981; font-weight:600;">💰 <%= lead.budget %></div><% } %>
+          </td>
+          <td>
+            <span class="badge <%=
+              lead.status === 'New' ? 'badge-new' :
+              lead.status === 'In Progress' ? 'badge-progress' :
+              'badge-closed'
+            %>"><%= lead.status %></span>
+          </td>
+          <td>
+            <% if (lead.follow_up_date) { %>
+              <div style="font-size:13px; font-weight:<%= isToday ? '700' : '400' %>; color:<%= isToday ? '#f59e0b' : '#64748b' %>;">
+                <%= isToday ? '🔔 Today' : moment(lead.follow_up_date).format('DD MMM YYYY') %>
+              </div>
+            <% } else { %>
+              <span style="color:#cbd5e1; font-size:12px;">—</span>
+            <% } %>
+          </td>
+          <% if (user.role === 'admin') { %>
+          <td style="font-size:13px; color:#64748b;"><%= lead.bde_name || '—' %></td>
+          <% } %>
+          <td>
+            <div class="action-group">
+              <a href="/leads/<%= lead.id %>/edit" class="btn btn-outline btn-sm">✏️ Edit</a>
+              <% if (user.role === 'admin') { %>
+              <form method="POST" action="/leads/<%= lead.id %>/delete" style="display:inline;">
+                <button
+                  type="submit"
+                  class="btn btn-danger btn-sm"
+                  data-confirm="Delete this lead? This action cannot be undone."
+                >🗑️</button>
+              </form>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

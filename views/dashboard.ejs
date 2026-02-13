@@ -1,0 +1,112 @@
+<%
+  pageTitle = 'Dashboard';
+%>
+<%- include('partials/header') %>
+
+<!-- Follow-up reminder banner -->
+<% if (followUps && followUps.length > 0) { %>
+<div class="followup-banner">
+  <span class="icon">🔔</span>
+  <div>
+    <strong>You have <%= followUps.length %> follow-up<%= followUps.length > 1 ? 's' : '' %> today!</strong>
+    — Don't miss your client check-ins scheduled for today.
+  </div>
+</div>
+<% } %>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon cyan">📋</div>
+    <div>
+      <div class="stat-value"><%= stats.total || 0 %></div>
+      <div class="stat-label">Total Leads</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue">🆕</div>
+    <div>
+      <div class="stat-value"><%= stats.new_leads || 0 %></div>
+      <div class="stat-label">New Leads</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange">⏳</div>
+    <div>
+      <div class="stat-value"><%= stats.in_progress || 0 %></div>
+      <div class="stat-label">In Progress</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">✅</div>
+    <div>
+      <div class="stat-value"><%= stats.closed || 0 %></div>
+      <div class="stat-label">Closed</div>
+    </div>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+
+  <!-- Today's Follow-Ups -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">🔔 Today's Follow-Ups</h3>
+      <a href="/leads?followup=today" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <% if (followUps.length === 0) { %>
+      <div class="empty-state" style="padding:32px 16px;">
+        <div class="icon">✅</div>
+        <p>No follow-ups scheduled for today!</p>
+      </div>
+    <% } else { %>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <% followUps.forEach(lead => { %>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#fffbeb; border-radius:8px; border-left:3px solid #f59e0b;">
+          <div>
+            <div style="font-weight:600; font-size:14px;"><%= lead.name %></div>
+            <div style="font-size:12px; color:#64748b;"><%= lead.phone || lead.email || '-' %></div>
+          </div>
+          <a href="/leads/<%= lead.id %>/edit" class="btn btn-warning btn-sm">Follow Up</a>
+        </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Recent Leads -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">📋 Recent Leads</h3>
+      <a href="/leads" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <% if (recentLeads.length === 0) { %>
+      <div class="empty-state" style="padding:32px 16px;">
+        <div class="icon">📋</div>
+        <p>No leads yet. Add your first lead!</p>
+        <a href="/leads/new" class="btn btn-primary btn-sm">Add Lead</a>
+      </div>
+    <% } else { %>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <% recentLeads.forEach(lead => { %>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 12px; background:#f8faff; border-radius:8px; border:1px solid #e2e8f0;">
+          <div>
+            <div style="font-weight:600; font-size:14px;"><%= lead.name %></div>
+            <div style="font-size:11px; color:#64748b;">
+              <%= lead.source %> · <%= lead.bde_name || 'Unassigned' %>
+            </div>
+          </div>
+          <span class="badge <%=
+            lead.status === 'New' ? 'badge-new' :
+            lead.status === 'In Progress' ? 'badge-progress' :
+            'badge-closed'
+          %>"><%= lead.status %></span>
+        </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+</div>
+
+<%- include('partials/footer') %>

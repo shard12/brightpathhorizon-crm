@@ -1,0 +1,170 @@
+<%
+  const isEdit = lead !== null;
+  pageTitle = isEdit ? 'Edit Lead' : 'Add New Lead';
+%>
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h2 class="page-title"><%= isEdit ? '✏️ Edit Lead' : '➕ Add New Lead' %></h2>
+    <p class="page-subtitle"><%= isEdit ? `Updating: ${lead.name}` : 'Fill in the details below' %></p>
+  </div>
+  <a href="/leads" class="btn btn-ghost">← Back to Leads</a>
+</div>
+
+<div class="card">
+  <form
+    method="POST"
+    action="<%= isEdit ? `/leads/${lead.id}` : '/leads' %>"
+  >
+    <% if (isEdit) { %><input type="hidden" name="_method" value="PUT"><% } %>
+
+    <div class="form-grid">
+
+      <!-- Full Name -->
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name <span style="color:red;">*</span></label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          placeholder="e.g. Rahul Sharma"
+          value="<%= isEdit ? lead.name : '' %>"
+          required
+        >
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-control"
+          placeholder="client@example.com"
+          value="<%= isEdit && lead.email ? lead.email : '' %>"
+        >
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone Number</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          class="form-control"
+          placeholder="+91 98765 43210"
+          value="<%= isEdit && lead.phone ? lead.phone : '' %>"
+        >
+      </div>
+
+      <!-- Source -->
+      <div class="form-group">
+        <label class="form-label" for="source">Lead Source <span style="color:red;">*</span></label>
+        <select id="source" name="source" class="form-control" required>
+          <option value="">-- Select Source --</option>
+          <% ['LinkedIn', 'Website', 'Referral', 'Instagram', 'Other'].forEach(s => { %>
+          <option value="<%= s %>" <%= isEdit && lead.source === s ? 'selected' : '' %>><%= s %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Project Type -->
+      <div class="form-group">
+        <label class="form-label" for="project_type">Project Type</label>
+        <input
+          type="text"
+          id="project_type"
+          name="project_type"
+          class="form-control"
+          placeholder="e.g. Website Development, SEO, App"
+          value="<%= isEdit && lead.project_type ? lead.project_type : '' %>"
+        >
+      </div>
+
+      <!-- Budget -->
+      <div class="form-group">
+        <label class="form-label" for="budget">Budget</label>
+        <input
+          type="text"
+          id="budget"
+          name="budget"
+          class="form-control"
+          placeholder="e.g. ₹50,000 or $1,000"
+          value="<%= isEdit && lead.budget ? lead.budget : '' %>"
+        >
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label class="form-label" for="status">Lead Status <span style="color:red;">*</span></label>
+        <select id="status" name="status" class="form-control" required>
+          <option value="New" <%= !isEdit || lead.status === 'New' ? 'selected' : '' %>>🔵 New</option>
+          <option value="In Progress" <%= isEdit && lead.status === 'In Progress' ? 'selected' : '' %>>🟠 In Progress</option>
+          <option value="Closed" <%= isEdit && lead.status === 'Closed' ? 'selected' : '' %>>🟢 Closed</option>
+        </select>
+      </div>
+
+      <!-- Follow-Up Date -->
+      <div class="form-group">
+        <label class="form-label" for="follow_up_date">Follow-Up Date</label>
+        <input
+          type="date"
+          id="follow_up_date"
+          name="follow_up_date"
+          class="form-control"
+          value="<%= isEdit && lead.follow_up_date ? lead.follow_up_date.toISOString().split('T')[0] : '' %>"
+        >
+      </div>
+
+      <!-- Assigned To (Admin only) -->
+      <% if (user.role === 'admin' && bdeUsers.length > 0) { %>
+      <div class="form-group">
+        <label class="form-label" for="assigned_to">Assign to BDE</label>
+        <select id="assigned_to" name="assigned_to" class="form-control">
+          <option value="">-- Select BDE --</option>
+          <% bdeUsers.forEach(bde => { %>
+          <option value="<%= bde.id %>" <%= isEdit && lead.assigned_to == bde.id ? 'selected' : '' %>><%= bde.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <% } %>
+
+      <!-- Comments (full width) -->
+      <div class="form-group full-width">
+        <label class="form-label" for="comment">Comments / Notes</label>
+        <textarea
+          id="comment"
+          name="comment"
+          class="form-control"
+          placeholder="Add any relevant notes about this lead..."
+          rows="4"
+        ><%= isEdit && lead.comment ? lead.comment : '' %></textarea>
+      </div>
+
+    </div><!-- /.form-grid -->
+
+    <div style="margin-top:28px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary">
+        <%= isEdit ? '✓ Update Lead' : '✓ Add Lead' %>
+      </button>
+      <a href="/leads" class="btn btn-ghost">Cancel</a>
+
+      <% if (isEdit && user.role === 'admin') { %>
+      <form method="POST" action="/leads/<%= lead.id %>/delete" style="margin-left:auto;">
+        <button
+          type="submit"
+          class="btn btn-danger"
+          data-confirm="Permanently delete this lead?"
+        >🗑️ Delete Lead</button>
+      </form>
+      <% } %>
+    </div>
+
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

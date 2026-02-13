@@ -1,0 +1,49 @@
+<%
+  pageTitle = 'Add New User';
+%>
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Add New User</h2>
+    <p class="page-subtitle">Create admin or BDE account</p>
+  </div>
+  <a href="/admin/users" class="btn btn-ghost">← Back to Users</a>
+</div>
+
+<div class="card" style="max-width:600px;">
+  <form method="POST" action="/auth/register">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <input type="text" id="name" name="name" class="form-control" placeholder="John Smith" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" placeholder="john@brightpathhorizon.com" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control" placeholder="Min. 6 characters" required minlength="6">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="role">Role</label>
+        <select id="role" name="role" class="form-control" required>
+          <option value="">-- Select Role --</option>
+          <option value="bde">BDE (Sales)</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:24px; display:flex; gap:10px;">
+      <button type="submit" class="btn btn-primary">✓ Create Account</button>
+      <a href="/admin/users" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

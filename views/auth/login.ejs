@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">🌟</div>
+      <h1>BrightPathHorizon</h1>
+      <p>Lead Management CRM</p>
+    </div>
+
+    <% if (error && error.length > 0) { %>
+      <% error.forEach(msg => { if(msg) { %>
+      <div style="background:#fef2f2; color:#dc2626; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; border:1px solid #fecaca;">
+        ⚠️ <%= msg %>
+      </div>
+      <% } }) %>
+    <% } %>
+
+    <% if (success && success.length > 0) { %>
+      <% success.forEach(msg => { if(msg) { %>
+      <div style="background:#f0fdf4; color:#16a34a; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; border:1px solid #bbf7d0;">
+        ✓ <%= msg %>
+      </div>
+      <% } }) %>
+    <% } %>
+
+    <form method="POST" action="/auth/login" class="auth-form">
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="form-control"
+          placeholder="you@brightpathhorizon.com"
+          required
+          autocomplete="email"
+        >
+      </div>
+
+      <div class="form-group" style="margin-top:4px;">
+        <label class="form-label" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="form-control"
+          placeholder="Enter your password"
+          required
+          autocomplete="current-password"
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary w-full" style="margin-top:20px; justify-content:center; padding:12px;">
+        Sign In →
+      </button>
+    </form>
+
+    <p style="text-align:center; font-size:12px; color:#94a3b8; margin-top:24px;">
+      BrightPathHorizon Technologies &copy; <%= new Date().getFullYear() %>
+    </p>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

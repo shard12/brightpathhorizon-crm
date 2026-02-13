@@ -1,0 +1,90 @@
+<%
+  pageTitle = 'Manage Users';
+%>
+<%- include('../partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h2 class="page-title">👥 Manage Users</h2>
+    <p class="page-subtitle"><%= users.length %> user<%= users.length !== 1 ? 's' : '' %> registered</p>
+  </div>
+  <a href="/auth/register" class="btn btn-primary">➕ Add User</a>
+</div>
+
+<div class="card" style="padding:0; overflow:hidden;">
+  <% if (users.length === 0) { %>
+    <div class="empty-state" style="padding:60px;">
+      <div class="icon">👥</div>
+      <p>No users found.</p>
+    </div>
+  <% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Joined</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach((u, idx) => { %>
+        <tr>
+          <td style="color:#94a3b8; font-size:12px;"><%= idx + 1 %></td>
+          <td>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:32px; height:32px; background:linear-gradient(135deg,#667eea,#764ba2); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; color:#fff; flex-shrink:0;">
+                <%= u.name.charAt(0).toUpperCase() %>
+              </div>
+              <span style="font-weight:600;"><%= u.name %></span>
+            </div>
+          </td>
+          <td style="font-size:13px; color:#64748b; font-family:'JetBrains Mono',monospace;"><%= u.email %></td>
+          <td>
+            <span class="badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-bde' %>">
+              <%= u.role === 'admin' ? '👑 Admin' : '💼 BDE' %>
+            </span>
+          </td>
+          <td>
+            <% if (u.is_active) { %>
+              <span style="color:#10b981; font-size:13px; font-weight:600;">● Active</span>
+            <% } else { %>
+              <span style="color:#94a3b8; font-size:13px;">○ Inactive</span>
+            <% } %>
+          </td>
+          <td style="font-size:12px; color:#94a3b8;">
+            <%= moment(u.created_at).format('DD MMM YYYY') %>
+          </td>
+          <td>
+            <% if (u.id !== user.id) { %>
+            <div class="action-group">
+              <form method="POST" action="/admin/users/<%= u.id %>/toggle">
+                <button type="submit" class="btn <%= u.is_active ? 'btn-ghost' : 'btn-success' %> btn-sm">
+                  <%= u.is_active ? 'Disable' : 'Enable' %>
+                </button>
+              </form>
+              <form method="POST" action="/admin/users/<%= u.id %>/delete">
+                <button
+                  type="submit"
+                  class="btn btn-danger btn-sm"
+                  data-confirm="Delete <%= u.name %>? Their leads will be unassigned."
+                >🗑️</button>
+              </form>
+            </div>
+            <% } else { %>
+              <span style="font-size:12px; color:#94a3b8;">You</span>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

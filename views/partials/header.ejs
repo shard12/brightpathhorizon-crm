@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌟</text></svg>">
+</head>
+<body class="app-layout">
+  <!-- Sidebar -->
+  <div id="sidebarOverlay"></div>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">🌟</div>
+        <div class="brand-text">
+          <span class="brand-name">BrightPathHorizon</span>
+          <span class="brand-sub">Technologies</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <a href="/dashboard" class="nav-link <%= currentPath === '/dashboard' || currentPath === '/' ? 'active' : '' %>">
+        <span class="nav-icon">📊</span>
+        Dashboard
+      </a>
+
+      <a href="/leads" class="nav-link <%= currentPath.startsWith('/leads') ? 'active' : '' %>">
+        <span class="nav-icon">📋</span>
+        Leads
+      </a>
+
+      <a href="/leads/new" class="nav-link">
+        <span class="nav-icon">➕</span>
+        Add Lead
+      </a>
+
+      <% if (user && user.role === 'admin') { %>
+        <div class="nav-section-title">Administration</div>
+        <a href="/admin/users" class="nav-link <%= currentPath.startsWith('/admin/users') ? 'active' : '' %>">
+          <span class="nav-icon">👥</span>
+          Manage Users
+        </a>
+        <a href="/auth/register" class="nav-link <%= currentPath === '/register' ? 'active' : '' %>">
+          <span class="nav-icon">➕</span>
+          Add User
+        </a>
+        <a href="/leads/export/excel" class="nav-link">
+          <span class="nav-icon">📤</span>
+          Export Excel
+        </a>
+      <% } %>
+    </div>
+
+    <% if (user) { %>
+    <div class="sidebar-user">
+      <div class="user-avatar"><%= user.name.charAt(0) %></div>
+      <div class="user-info">
+        <div class="user-name"><%= user.name %></div>
+        <div class="user-role"><%= user.role %></div>
+      </div>
+      <a href="/auth/logout" class="logout-btn" title="Logout">🚪</a>
+    </div>
+    <% } %>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <h1 class="topbar-title"><%= typeof pageTitle !== 'undefined' ? pageTitle : 'CRM' %></h1>
+      </div>
+      <div class="topbar-actions">
+        <% if (user && user.role === 'admin') { %>
+        <a href="/leads/export/excel" class="btn btn-success btn-sm">📤 Export Excel</a>
+        <% } %>
+        <a href="/leads/new" class="btn btn-primary btn-sm">➕ New Lead</a>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Toast Notifications -->
+      <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+        <div class="toast-container" id="toastContainer">
+          <% error.forEach(msg => { %>
+            <% if (msg) { %>
+            <div class="toast toast-error">✕ <%= msg %></div>
+            <% } %>
+          <% }) %>
+        </div>
+      <% } %>
+      <% if (typeof success !== 'undefined' && success && success.length > 0) { %>
+        <div class="toast-container" id="toastContainer">
+          <% success.forEach(msg => { %>
+            <% if (msg) { %>
+            <div class="toast toast-success">✓ <%= msg %></div>
+            <% } %>
+          <% }) %>
+        </div>
+      <% } %>
