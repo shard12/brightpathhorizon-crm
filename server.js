@@ -26,6 +26,9 @@ app.use(express.json({ limit: '10mb' }));
 // ─── Method Override (for PUT/DELETE via forms) ───────────────────────────────
 app.use(methodOverride('_method'));
 
+// Trust Railway proxy
+app.set('trust proxy', 1);
+
 // ─── Session ──────────────────────────────────────────────────────────────────
 app.use(session({
   secret: process.env.SESSION_SECRET || 'brightpath-secret-change-in-production',
