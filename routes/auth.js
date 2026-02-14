@@ -16,8 +16,6 @@ router.get('/login', isGuest, (req, res) => {
   });
 });
 
-router.post('/login', isGuest, async (req, res) => {
-  console.log('LOGIN BODY:', req.body);
 
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
 router.post('/login', isGuest, async (req, res) => {
@@ -139,5 +137,3 @@ router.get('/logout', (req, res) => {
 });
 
 module.exports = router;
-
-console.log('LOGIN BODY:', req.body);
