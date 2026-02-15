@@ -91,9 +91,9 @@ app.listen(PORT, () => {
   console.log(`\n🚀 BrightPathHorizon CRM is running!`);
   console.log(`   Local:   http://localhost:${PORT}`);
   console.log(`   Mode:    ${process.env.NODE_ENV || 'development'}`);
-  console.log(`\n   Default Admin Login:`);
-  console.log(`   Email:   admin@brightpathhorizon.com`);
-  console.log(`   Pass:    Admin@123\n`);
+  // console.log(`\n   Default Admin Login:`);
+  // console.log(`   Email:   admin@brightpathhorizon.com`);
+  // console.log(`   Pass:    Admin@123\n`);
 });
 
 module.exports = app;
