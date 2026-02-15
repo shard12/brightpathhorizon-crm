@@ -6,6 +6,14 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { isGuest, isAuthenticated, isAdmin } = require('../middleware/auth');
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts
+  message: 'Too many login attempts. Try again later.'
+});
+
 
 // ─── GET /auth/login ──────────────────────────────────────────────────────────
 router.get('/login', isGuest, (req, res) => {
@@ -18,7 +26,7 @@ router.get('/login', isGuest, (req, res) => {
 
 
 // ─── POST /auth/login ─────────────────────────────────────────────────────────
-router.post('/login', isGuest, async (req, res) => {
+router.post('/login', isGuest, loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   // Basic validation
