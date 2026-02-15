@@ -8,8 +8,11 @@ const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const path = require('path');
 const moment = require('moment');
+const helmet = require('helmet');
+
 
 const app = express();
+app.use(helmet());
 const PORT = process.env.PORT || 3000;
 
 // ─── View Engine ──────────────────────────────────────────────────────────────
