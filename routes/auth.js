@@ -220,7 +220,13 @@ router.get('/reset/:token', async (req, res) => {
     return res.redirect('/auth/login');
   }
 
-  res.render('auth/reset', { token });
+  res.render('auth/reset', {
+    title: 'Reset Password | BrightPathHorizon CRM',
+    token,
+    error: req.flash('error'),
+    success: req.flash('success')
+  });
+
 });
 
 router.post('/reset/:token', async (req, res) => {
