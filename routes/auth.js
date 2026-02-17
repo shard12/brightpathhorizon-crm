@@ -8,7 +8,8 @@ const db = require('../config/db');
 const { isGuest, isAuthenticated, isAdmin } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // ─────────────────────────────────────────────────────────────
@@ -175,17 +176,12 @@ router.post('/forgot', async (req, res) => {
       [token, expiry, user.id]
     );
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
+    
 
     const resetLink = `${process.env.APP_URL}/auth/reset/${token}`;
 
-    await transporter.sendMail({
+    await resend.emails.send({
+      from: 'BrightPathHorizon <onboarding@resend.dev>',
       to: user.email,
       subject: 'Password Reset - BrightPathHorizon CRM',
       html: `
@@ -195,6 +191,7 @@ router.post('/forgot', async (req, res) => {
         <p>This link expires in 1 hour.</p>
       `
     });
+
 
     req.flash('success', 'If that email exists, a reset link has been sent.');
     res.redirect('/auth/login');
