@@ -178,7 +178,7 @@ router.post('/forgot', async (req, res) => {
 
     
 
-    const resetLink = `${process.env.APP_URL}/auth/reset/${token}`;
+    const resetLink = `${req.protocol}://${req.get('host')}/auth/reset/${token}`;
 
     await resend.emails.send({
       from: 'BrightPathHorizon <onboarding@resend.dev>',
