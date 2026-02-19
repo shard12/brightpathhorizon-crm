@@ -4,71 +4,100 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-<div class="auth-page">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <div class="icon">🌟</div>
-      <h1>BrightPathHorizon</h1>
-      <p>Lead Management CRM</p>
-    </div>
+<body class="split-auth">
 
-    <% if (error && error.length > 0) { %>
-      <% error.forEach(msg => { if(msg) { %>
-      <div style="background:#fef2f2; color:#dc2626; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; border:1px solid #fecaca;">
-        ⚠️ <%= msg %>
-      </div>
-      <% } }) %>
-    <% } %>
+<div class="split-container">
 
-    <% if (success && success.length > 0) { %>
-      <% success.forEach(msg => { if(msg) { %>
-      <div style="background:#f0fdf4; color:#16a34a; padding:12px 14px; border-radius:8px; font-size:13px; margin-bottom:16px; border:1px solid #bbf7d0;">
-        ✓ <%= msg %>
-      </div>
-      <% } }) %>
-    <% } %>
+  <!-- LEFT PANEL -->
+<div class="left-panel">
 
-    <form method="POST" action="/auth/login" class="auth-form">
-      <div class="form-group">
-        <label class="form-label" for="email">Email Address</label>
+  <div class="curves"></div>
+
+  <div class="left-content">
+
+  <div class="left-logo">
+    <a href="https://www.brightpathhorizon.com" target="_blank">
+      <img src="/images/bphlogo.png" alt="BrightPath Logo">
+    </a>
+  </div>
+
+  <h1>Hello<br>BrightPath! 👋</h1>
+
+  <p>
+    Manage leads, automate workflows, and boost
+    productivity with our powerful CRM solution.
+    Track every opportunity, never miss a follow-up,
+    and close deals faster — all in one place.
+  </p>  
+
+</div>
+
+
+  <!-- Footer at absolute bottom -->
+  <div class="left-footer">
+    © <%= new Date().getFullYear() %> BrightPathHorizon Technologies
+  </div>
+
+</div>
+
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+
+    <div class="login-box">
+
+      <h2>BrightPath CRM</h2>
+      <h3>Welcome Back!</h3>
+
+      <% if (error && error.length > 0) { %>
+        <% error.forEach(msg => { if(msg) { %>
+          <div class="login-error"><%= msg %></div>
+        <% } }) %>
+      <% } %>
+
+      <form method="POST" action="/auth/login">
+
         <input
           type="email"
-          id="email"
           name="email"
-          class="form-control"
-          placeholder="you@brightpathhorizon.com"
+          placeholder="Email Address"
           required
-          autocomplete="email"
         >
-      </div>
 
-      <div class="form-group" style="margin-top:4px;">
-        <label class="form-label" for="password">Password</label>
         <input
           type="password"
-          id="password"
           name="password"
-          class="form-control"
-          placeholder="Enter your password"
+          placeholder="Password"
           required
-          autocomplete="current-password"
         >
-      </div>
 
-      <button type="submit" class="btn btn-primary w-full" style="margin-top:20px; justify-content:center; padding:12px;">
-        Sign In →
-      </button>
-    </form>
+        <button type="submit" class="login-btn">
+          Login Now
+        </button>
 
-    <p style="text-align:center; font-size:12px; color:#94a3b8; margin-top:24px;">
-      BrightPathHorizon Technologies &copy; <%= new Date().getFullYear() %>
+      </form>
+
+      <p class="forgot-link">
+        Forgot password?
+        <a href="/auth/forgot">Click here</a>
+      </p>
+
+    </div>
+
+    <!-- Contact pinned to bottom -->
+    <p style="position: absolute; bottom: 28px; font-size: 12px; color: #9ca3af; font-family: 'Plus Jakarta Sans', sans-serif;">
+      Need help? <a href="mailto:contact@brightpathhorizon.com" style="color: #6b7280; font-weight: 600; text-decoration: underline; text-underline-offset: 3px;">contact@brightpathhorizon.com</a>
     </p>
+
   </div>
+
 </div>
-<script src="/js/app.js"></script>
+
 </body>
 </html>
