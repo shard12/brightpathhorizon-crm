@@ -15,9 +15,8 @@
 <div class="card">
   <form
     method="POST"
-    action="<%= isEdit ? `/leads/${lead.id}` : '/leads' %>"
+    action="<%= isEdit ? `/leads/${lead.id}?_method=PUT` : '/leads' %>"
   >
-    <% if (isEdit) { %><input type="hidden" name="_method" value="PUT"><% } %>
 
     <div class="form-grid">
 
@@ -67,7 +66,7 @@
         <select id="source" name="source" class="form-control" required>
           <option value="">-- Select Source --</option>
           <% ['LinkedIn', 'Website', 'Referral', 'Instagram', 'Other'].forEach(s => { %>
-          <option value="<%= s %>" <%= isEdit && lead.source === s ? 'selected' : '' %>><%= s %></option>
+            <option value="<%= s %>" <%= isEdit && lead.source === s ? 'selected' : '' %>><%= s %></option>
           <% }) %>
         </select>
       </div>
@@ -102,9 +101,9 @@
       <div class="form-group">
         <label class="form-label" for="status">Lead Status <span style="color:red;">*</span></label>
         <select id="status" name="status" class="form-control" required>
-          <option value="New" <%= !isEdit || lead.status === 'New' ? 'selected' : '' %>>🔵 New</option>
-          <option value="In Progress" <%= isEdit && lead.status === 'In Progress' ? 'selected' : '' %>>🟠 In Progress</option>
-          <option value="Closed" <%= isEdit && lead.status === 'Closed' ? 'selected' : '' %>>🟢 Closed</option>
+          <option value="New"         <%= !isEdit || lead.status === 'New'         ? 'selected' : '' %>>🔵 New</option>
+          <option value="In Progress" <%= isEdit  && lead.status === 'In Progress' ? 'selected' : '' %>>🟠 In Progress</option>
+          <option value="Closed"      <%= isEdit  && lead.status === 'Closed'      ? 'selected' : '' %>>🟢 Closed</option>
         </select>
       </div>
 
@@ -116,18 +115,26 @@
           id="follow_up_date"
           name="follow_up_date"
           class="form-control"
-          value="<%= isEdit && lead.follow_up_date ? lead.follow_up_date.toISOString().split('T')[0] : '' %>"
+          value="<%=
+            isEdit && lead.follow_up_date
+              ? (lead.follow_up_date instanceof Date
+                  ? lead.follow_up_date.toISOString().split('T')[0]
+                  : String(lead.follow_up_date).split('T')[0])
+              : ''
+          %>"
         >
       </div>
 
       <!-- Assigned To (Admin only) -->
-      <% if (user.role === 'admin' && bdeUsers.length > 0) { %>
+      <% if (user && user.role === 'admin' && bdeUsers && bdeUsers.length > 0) { %>
       <div class="form-group">
         <label class="form-label" for="assigned_to">Assign to BDE</label>
         <select id="assigned_to" name="assigned_to" class="form-control">
           <option value="">-- Select BDE --</option>
           <% bdeUsers.forEach(bde => { %>
-          <option value="<%= bde.id %>" <%= isEdit && lead.assigned_to == bde.id ? 'selected' : '' %>><%= bde.name %></option>
+            <option value="<%= bde.id %>" <%= isEdit && lead.assigned_to == bde.id ? 'selected' : '' %>>
+              <%= bde.name %>
+            </option>
           <% }) %>
         </select>
       </div>
@@ -147,24 +154,33 @@
 
     </div><!-- /.form-grid -->
 
-    <div style="margin-top:28px; display:flex; gap:10px; flex-wrap:wrap;">
+    <!-- Form Actions -->
+    <div style="margin-top:28px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
       <button type="submit" class="btn btn-primary">
         <%= isEdit ? '✓ Update Lead' : '✓ Add Lead' %>
       </button>
       <a href="/leads" class="btn btn-ghost">Cancel</a>
-
-      <% if (isEdit && user.role === 'admin') { %>
-      <form method="POST" action="/leads/<%= lead.id %>/delete" style="margin-left:auto;">
-        <button
-          type="submit"
-          class="btn btn-danger"
-          data-confirm="Permanently delete this lead?"
-        >🗑️ Delete Lead</button>
-      </form>
-      <% } %>
     </div>
 
+  </form><!-- main form ends here -->
+
+  <!-- Delete form is separate, outside the main form -->
+  <% if (isEdit && user && user.role === 'admin') { %>
+  <form
+    method="POST"
+    action="/leads/<%= lead.id %>/delete"
+    style="margin-top:12px;"
+  >
+    <button
+      type="submit"
+      class="btn btn-danger"
+      data-confirm="Permanently delete this lead? This cannot be undone."
+    >
+      🗑️ Delete Lead
+    </button>
   </form>
-</div>
+  <% } %>
+
+</div><!-- /.card -->
 
 <%- include('../partials/footer') %>

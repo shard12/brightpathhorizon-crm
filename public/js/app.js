@@ -1,116 +1,119 @@
-// public/js/app.js - BrightPathHorizon CRM Frontend Logic
+// public/js/app.js — BrightPathHorizon CRM v2
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ─── Auto-dismiss Toast Notifications ─────────────────────────────────
-  const toasts = document.querySelectorAll('.toast');
-  toasts.forEach(toast => {
-    // Dismiss on click
-    toast.addEventListener('click', () => {
-      toast.style.animation = 'slideOut 0.3s ease forwards';
-      setTimeout(() => toast.remove(), 300);
-    });
+  // ── Dark Mode ───────────────────────────────────────────────────
+  const saved = localStorage.getItem('crm-theme') || 'light';
+  applyTheme(saved);
 
-    // Auto-dismiss after 4s
-    setTimeout(() => {
-      if (toast.isConnected) {
-        toast.style.animation = 'slideOut 0.3s ease forwards';
-        setTimeout(() => toast.remove(), 300);
-      }
-    }, 4000);
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      applyTheme(current === 'light' ? 'dark' : 'light');
+    });
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('crm-theme', theme);
+    const iconLight = document.getElementById('themeIconLight');
+    const iconDark  = document.getElementById('themeIconDark');
+    if (iconLight) iconLight.style.display = theme === 'dark'  ? ''     : 'none';
+    if (iconDark)  iconDark.style.display  = theme === 'light' ? ''     : 'none';
+    // Sync settings page if present
+    const tl = document.getElementById('themeLight');
+    const td = document.getElementById('themeDark');
+    if (tl) tl.classList.toggle('selected', theme === 'light');
+    if (td) td.classList.toggle('selected', theme === 'dark');
+  }
+
+  // Expose for settings page
+  window.setTheme = applyTheme;
+
+  // ── Toast Dismiss ────────────────────────────────────────────────
+  document.querySelectorAll('.toast').forEach(toast => {
+    toast.addEventListener('click', () => dismissToast(toast));
+    setTimeout(() => toast.isConnected && dismissToast(toast), 4500);
   });
 
-  // ─── Mobile Sidebar Toggle ─────────────────────────────────────────────
-  const sidebar = document.getElementById('sidebar');
+  function dismissToast(t) {
+    t.style.transition = 'opacity .3s,transform .3s';
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(100%)';
+    setTimeout(() => t.remove(), 300);
+  }
+
+  window.showToast = (msg, type = 'success') => {
+    let c = document.querySelector('.toast-container');
+    if (!c) { c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); }
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><polyline points="20 6 9 17 4 12"/></svg><span>${msg}</span>`;
+    c.appendChild(t);
+    t.addEventListener('click', () => dismissToast(t));
+    setTimeout(() => dismissToast(t), 4500);
+  };
+
+  // ── Mobile Sidebar ───────────────────────────────────────────────
+  const sidebar   = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('sidebarToggle');
-  const overlay = document.getElementById('sidebarOverlay');
+  const overlay   = document.getElementById('sidebarOverlay');
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar?.classList.toggle('open');
-      overlay?.classList.toggle('active');
+  function openSidebar()  { sidebar?.classList.add('open');    overlay?.classList.add('active');    document.body.style.overflow='hidden'; }
+  function closeSidebar() { sidebar?.classList.remove('open'); overlay?.classList.remove('active'); document.body.style.overflow=''; }
+
+  toggleBtn?.addEventListener('click', () => sidebar?.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay?.addEventListener('click', closeSidebar);
+
+  // ── Submenu Toggle (smooth, with delay so hover-expand works) ────
+  document.querySelectorAll('[data-toggle]').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+      const navItem = trigger.closest('.has-sub');
+      if (!navItem) return;
+      const isOpen = navItem.classList.contains('sub-open');
+      // Close all
+      document.querySelectorAll('.has-sub.sub-open').forEach(i => i.classList.remove('sub-open'));
+      if (!isOpen) navItem.classList.add('sub-open');
     });
+  });
+
+  // Keep submenu open if a child link is active
+  const activeSubLink = document.querySelector('.nav-sub-link.active');
+  if (activeSubLink) {
+    activeSubLink.closest('.has-sub')?.classList.add('sub-open');
   }
 
-  if (overlay) {
-    overlay.addEventListener('click', () => {
-      sidebar?.classList.remove('open');
-      overlay.classList.remove('active');
-    });
-  }
-
-  // ─── Confirm Delete Actions ────────────────────────────────────────────
+  // ── Confirm on delete ────────────────────────────────────────────
   document.querySelectorAll('[data-confirm]').forEach(el => {
-    el.addEventListener('click', e => {
-      const msg = el.dataset.confirm || 'Are you sure you want to delete this?';
-      if (!confirm(msg)) {
-        e.preventDefault();
-        return false;
-      }
-    });
+    el.addEventListener('click', e => { if (!confirm(el.dataset.confirm || 'Are you sure?')) e.preventDefault(); });
   });
 
-  // ─── Auto-submit Filter Forms ──────────────────────────────────────────
-  document.querySelectorAll('.auto-submit select').forEach(select => {
-    select.addEventListener('change', () => {
-      select.closest('form').submit();
-    });
+  // ── Auto-submit filter selects ───────────────────────────────────
+  document.querySelectorAll('.auto-submit select').forEach(s => {
+    s.addEventListener('change', () => s.closest('form').submit());
   });
 
-  // ─── Set min date for follow-up to today ──────────────────────────────
-  const followUpInput = document.getElementById('follow_up_date');
-  if (followUpInput) {
-    const today = new Date().toISOString().split('T')[0];
-    followUpInput.setAttribute('min', today);
-  }
-
-  // ─── Search debounce ───────────────────────────────────────────────────
+  // ── Search debounce ──────────────────────────────────────────────
   const searchInput = document.querySelector('input[name="search"]');
   if (searchInput) {
-    let searchTimeout;
+    let tmr;
     searchInput.addEventListener('input', () => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        searchInput.closest('form').submit();
-      }, 500);
+      clearTimeout(tmr);
+      tmr = setTimeout(() => searchInput.closest('form').submit(), 480);
     });
   }
 
-  // ─── Toast Helper (for inline use) ────────────────────────────────────
-  window.showToast = (message, type = 'success') => {
-    const container = document.querySelector('.toast-container') || (() => {
-      const c = document.createElement('div');
-      c.className = 'toast-container';
-      document.body.appendChild(c);
-      return c;
-    })();
-
-    const icons = { success: '✓', error: '✕', warning: '⚠' };
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.innerHTML = `<span>${icons[type] || '●'}</span><span>${message}</span>`;
-    container.appendChild(toast);
-
-    toast.addEventListener('click', () => toast.remove());
-    setTimeout(() => toast.remove(), 4000);
-  };
+  // ── Follow-up date min ───────────────────────────────────────────
+  const fuDate = document.getElementById('follow_up_date');
+  if (fuDate && !fuDate.value) fuDate.setAttribute('min', new Date().toISOString().split('T')[0]);
 
 });
 
-// Add CSS for slide out
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideOut {
-    from { opacity: 1; transform: translateX(0); }
-    to { opacity: 0; transform: translateX(100%); }
-  }
-  #sidebarOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 99;
-  }
-  #sidebarOverlay.active { display: block; }
+// ── Sidebar overlay CSS ─────────────────────────────────────────────
+const _s = document.createElement('style');
+_s.textContent = `
+  #sidebarOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:199;backdrop-filter:blur(1px)}
+  #sidebarOverlay.active{display:block}
 `;
-document.head.appendChild(style);
+document.head.appendChild(_s);

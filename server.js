@@ -10,10 +10,11 @@ const path = require('path');
 const moment = require('moment');
 const helmet = require('helmet');
 
-
 const app = express();
-app.use(helmet());
 const PORT = process.env.PORT || 3000;
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+app.use(helmet());
 
 // ─── View Engine ──────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');
@@ -26,10 +27,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));
 
-// ─── Method Override (for PUT/DELETE via forms) ───────────────────────────────
-app.use(methodOverride('_method'));
+// ─── Method Override (PUT/DELETE via forms) ───────────────────────────────────
+// Supports _method in both query string and request body
+app.use(methodOverride(function (req, res) {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    const method = req.body._method;
+    delete req.body._method;
+    return method;
+  }
+  if (req.query && req.query._method) {
+    return req.query._method;
+  }
+}));
 
-// Trust Railway proxy
+// ─── Trust Proxy (Railway / reverse proxies) ──────────────────────────────────
 app.set('trust proxy', 1);
 
 // ─── Session ──────────────────────────────────────────────────────────────────
@@ -38,9 +49,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    maxAge:   8 * 60 * 60 * 1000, // 8 hours
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure:   process.env.NODE_ENV === 'production',
     sameSite: 'lax'
   }
 }));
@@ -50,42 +61,49 @@ app.use(flash());
 
 // ─── Global Template Variables ────────────────────────────────────────────────
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  res.locals.moment = moment;
+  res.locals.user        = req.session.user || null;
+  res.locals.moment      = moment;
   res.locals.currentPath = req.path;
   next();
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-const authRoutes = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
-const leadsRoutes = require('./routes/leads');
+const authRoutes       = require('./routes/auth');
+const dashboardRoutes  = require('./routes/dashboard');
+const adminRoutes      = require('./routes/admin');
+const leadsRoutes      = require('./routes/leads');
+const incentivesRoutes = require('./routes/incentives');
+const feedbackRoutes   = require('./routes/feedback');
+const profileRoutes    = require('./routes/profile');
+const settingsRoutes   = require('./routes/settings');
 
-app.use('/auth', authRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/admin', dashboardRoutes);   // admin user management via same router
-app.use('/leads', leadsRoutes);
+app.use('/auth',       authRoutes);
+app.use('/dashboard',  dashboardRoutes);
+app.use('/admin',      adminRoutes);
+app.use('/leads',      leadsRoutes);
+app.use('/incentives', incentivesRoutes);
+app.use('/feedback',   feedbackRoutes);
+app.use('/profile',    profileRoutes);
+app.use('/settings',   settingsRoutes);
 
 // ─── Root Redirect ────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/dashboard');
-  }
+  if (req.session.user) return res.redirect('/dashboard');
   res.redirect('/auth/login');
 });
 
-// ─── 404 Handler ─────────────────────────────────────────────────────────────
+// ─── 404 Handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).render('404', {
     title: '404 Not Found | BrightPathHorizon CRM'
   });
 });
 
-// ─── Error Handler ────────────────────────────────────────────────────────────
+// ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.status(500).render('error', {
-    title: 'Error | BrightPathHorizon CRM',
+    title:   'Error | BrightPathHorizon CRM',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
@@ -93,11 +111,8 @@ app.use((err, req, res, next) => {
 // ─── Start Server ─────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`\n🚀 BrightPathHorizon CRM is running!`);
-  console.log(`   Local:   http://localhost:${PORT}`);
-  console.log(`   Mode:    ${process.env.NODE_ENV || 'development'}`);
-  // console.log(`\n   Default Admin Login:`);
-  // console.log(`   Email:   admin@brightpathhorizon.com`);
-  // console.log(`   Pass:    Admin@123\n`);
+  console.log(`   Local:  http://localhost:${PORT}`);
+  console.log(`   Mode:   ${process.env.NODE_ENV || 'development'}\n`);
 });
 
 module.exports = app;

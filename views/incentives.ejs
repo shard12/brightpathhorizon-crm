@@ -1,0 +1,43 @@
+<%
+  pageTitle = 'Incentives';
+%>
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Incentives</h2>
+    <p class="page-subtitle">Track and manage team performance rewards</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="stub-page">
+    <div class="coming-soon-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Coming Soon
+    </div>
+    <div class="stub-icon cyan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="34" height="34">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    </div>
+    <h2>Incentives Module</h2>
+    <p>Motivate your sales team with structured incentive programs. Track commissions, bonuses, and performance rewards all in one place.</p>
+    <div style="margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px 24px; text-align:center; min-width:140px;">
+        <div style="font-size:22px; font-weight:800; color:var(--success);">—</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:500;">Total Earnings</div>
+      </div>
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px 24px; text-align:center; min-width:140px;">
+        <div style="font-size:22px; font-weight:800; color:var(--primary);">—</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:500;">This Month</div>
+      </div>
+      <div style="background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px 24px; text-align:center; min-width:140px;">
+        <div style="font-size:22px; font-weight:800; color:var(--warning);">—</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:4px; font-weight:500;">Pending</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

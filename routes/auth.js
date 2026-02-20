@@ -8,8 +8,12 @@ const db = require('../config/db');
 const { isGuest, isAuthenticated, isAdmin } = require('../middleware/auth');
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
-const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+let resend = null;
+if (process.env.RESEND_API_KEY) {
+  const { Resend } = require('resend');
+  resend = new Resend(process.env.RESEND_API_KEY);
+}
 
 
 // ─────────────────────────────────────────────────────────────
@@ -141,7 +145,7 @@ router.post('/register', isAuthenticated, isAdmin, async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 router.get('/forgot', (req, res) => {
   res.render('auth/forgot', {
-    title: 'Forgot Password',
+    title: 'Forgot Password | BrightPathHorizon CRM',
     error: req.flash('error'),
     success: req.flash('success')
   });
@@ -161,13 +165,13 @@ router.post('/forgot', async (req, res) => {
       [email.toLowerCase().trim()]
     );
 
+    // Always show the same message to prevent email enumeration
     if (rows.length === 0) {
       req.flash('success', 'If that email exists, a reset link has been sent.');
       return res.redirect('/auth/login');
     }
 
     const user = rows[0];
-
     const token = crypto.randomBytes(32).toString('hex');
     const expiry = new Date(Date.now() + 3600000); // 1 hour
 
@@ -176,29 +180,31 @@ router.post('/forgot', async (req, res) => {
       [token, expiry, user.id]
     );
 
-    
-
     const resetLink = `${req.protocol}://${req.get('host')}/auth/reset/${token}`;
 
-    await resend.emails.send({
-      from: 'BrightPathHorizon <onboarding@resend.dev>',
-      to: user.email,
-      subject: 'Password Reset - BrightPathHorizon CRM',
-      html: `
-        <h3>Password Reset</h3>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>This link expires in 1 hour.</p>
-      `
-    });
-
+    if (resend) {
+      await resend.emails.send({
+        from: 'BrightPathHorizon <onboarding@resend.dev>',
+        to: user.email,
+        subject: 'Password Reset - BrightPathHorizon CRM',
+        html: `
+          <h3>Password Reset</h3>
+          <p>Click the link below to reset your password:</p>
+          <a href="${resetLink}">${resetLink}</a>
+          <p>This link expires in 1 hour.</p>
+        `
+      });
+    } else {
+      // Email not configured — log the link so it's not lost during development
+      console.log(`[DEV] Password reset link for ${user.email}: ${resetLink}`);
+    }
 
     req.flash('success', 'If that email exists, a reset link has been sent.');
     res.redirect('/auth/login');
 
   } catch (err) {
     console.error('Forgot password error:', err);
-    req.flash('error', 'Something went wrong.');
+    req.flash('error', 'Something went wrong. Please try again.');
     res.redirect('/auth/forgot');
   }
 });
@@ -208,55 +214,73 @@ router.post('/forgot', async (req, res) => {
 // 🔄 RESET PASSWORD
 // ─────────────────────────────────────────────────────────────
 router.get('/reset/:token', async (req, res) => {
-  const { token } = req.params;
+  try {
+    const { token } = req.params;
 
-  const [rows] = await db.query(
-    'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
-    [token]
-  );
+    const [rows] = await db.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
+      [token]
+    );
 
-  if (rows.length === 0) {
-    req.flash('error', 'Invalid or expired token.');
-    return res.redirect('/auth/login');
+    if (rows.length === 0) {
+      req.flash('error', 'This reset link is invalid or has expired.');
+      return res.redirect('/auth/forgot');
+    }
+
+    res.render('auth/reset', {
+      title: 'Reset Password | BrightPathHorizon CRM',
+      token,
+      error: req.flash('error'),
+      success: req.flash('success')
+    });
+
+  } catch (err) {
+    console.error('Reset GET error:', err);
+    req.flash('error', 'Something went wrong. Please try again.');
+    res.redirect('/auth/forgot');
   }
-
-  res.render('auth/reset', {
-    title: 'Reset Password | BrightPathHorizon CRM',
-    token,
-    error: req.flash('error'),
-    success: req.flash('success')
-  });
-
 });
 
 router.post('/reset/:token', async (req, res) => {
   const { token } = req.params;
-  const { password } = req.body;
+  const { password, confirm_password } = req.body;
 
-  if (!password || password.length < 6) {
-    req.flash('error', 'Password must be at least 6 characters.');
-    return res.redirect(`/auth/reset/${token}`);
+  try {
+    if (!password || password.length < 6) {
+      req.flash('error', 'Password must be at least 6 characters.');
+      return res.redirect(`/auth/reset/${token}`);
+    }
+
+    if (confirm_password && password !== confirm_password) {
+      req.flash('error', 'Passwords do not match.');
+      return res.redirect(`/auth/reset/${token}`);
+    }
+
+    const [rows] = await db.query(
+      'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
+      [token]
+    );
+
+    if (rows.length === 0) {
+      req.flash('error', 'This reset link is invalid or has expired.');
+      return res.redirect('/auth/forgot');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await db.query(
+      'UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
+      [hashedPassword, rows[0].id]
+    );
+
+    req.flash('success', 'Password updated successfully. Please log in.');
+    res.redirect('/auth/login');
+
+  } catch (err) {
+    console.error('Reset POST error:', err);
+    req.flash('error', 'Something went wrong. Please try again.');
+    res.redirect('/auth/forgot');
   }
-
-  const [rows] = await db.query(
-    'SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()',
-    [token]
-  );
-
-  if (rows.length === 0) {
-    req.flash('error', 'Invalid or expired token.');
-    return res.redirect('/auth/login');
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  await db.query(
-    'UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
-    [hashedPassword, rows[0].id]
-  );
-
-  req.flash('success', 'Password updated successfully.');
-  res.redirect('/auth/login');
 });
 
 

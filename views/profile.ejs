@@ -1,0 +1,152 @@
+<%
+  pageTitle = 'My Profile';
+%>
+<%- include('partials/header') %>
+
+<div class="page-header">
+  <div>
+    <h2 class="page-title">My Profile</h2>
+    <p class="page-subtitle">Manage your account details and activity</p>
+  </div>
+</div>
+
+<div class="profile-layout">
+
+  <!-- ── Left Panel ─────────────────────────── -->
+  <div class="profile-left">
+
+    <!-- Avatar card -->
+    <div class="card profile-avatar-card">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar-xl"><%= user.name.charAt(0).toUpperCase() %></div>
+        <div class="profile-avatar-ring"></div>
+      </div>
+      <h3 class="profile-name"><%= user.name %></h3>
+      <p class="profile-email"><%= user.email %></p>
+      <span class="badge <%= user.role === 'admin' ? 'badge-admin' : 'badge-bde' %>" style="margin-top:8px;">
+        <%= user.role === 'admin' ? 'Administrator' : 'Sales BDE' %>
+      </span>
+      <div class="profile-divider"></div>
+      <div class="profile-meta-list">
+        <div class="profile-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.49 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.5z"/></svg>
+          <span>+91 ── ────────</span>
+        </div>
+        <div class="profile-meta-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Member since <%= moment(memberSince).format('MMM YYYY') %></span>
+        </div>
+      </div>
+      <a href="/settings" class="btn btn-outline" style="width:100%; justify-content:center; margin-top:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Edit Settings
+      </a>
+    </div>
+
+    <!-- Quick nav -->
+    <div class="card" style="padding:12px;">
+      <p style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-muted); padding:4px 8px 10px;">Quick Links</p>
+      <a href="/leads" class="profile-quick-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        View All Leads
+      </a>
+      <a href="/leads/new" class="profile-quick-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Add New Lead
+      </a>
+      <a href="/feedback" class="profile-quick-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Give Feedback
+      </a>
+      <a href="/settings" class="profile-quick-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+
+  </div><!-- /.profile-left -->
+
+  <!-- ── Right Panel ─────────────────────────── -->
+  <div class="profile-right">
+
+    <!-- Stats grid -->
+    <div class="profile-stats-grid">
+      <div class="profile-stat-card blue">
+        <div class="profile-stat-num"><%= profileStats ? profileStats.total : 0 %></div>
+        <div class="profile-stat-label">Total Leads</div>
+        <div class="profile-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+      </div>
+      <div class="profile-stat-card green">
+        <div class="profile-stat-num"><%= profileStats ? profileStats.closed : 0 %></div>
+        <div class="profile-stat-label">Closed Deals</div>
+        <div class="profile-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+      </div>
+      <div class="profile-stat-card orange">
+        <div class="profile-stat-num"><%= profileStats ? profileStats.in_progress : 0 %></div>
+        <div class="profile-stat-label">In Progress</div>
+        <div class="profile-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+      </div>
+      <div class="profile-stat-card cyan">
+        <div class="profile-stat-num"><%= profileStats ? profileStats.new_leads : 0 %></div>
+        <div class="profile-stat-label">New This Month</div>
+        <div class="profile-stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent leads table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-title-icon blue-light">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </div>
+          <h3 class="card-title">My Recent Leads</h3>
+        </div>
+        <a href="/leads" class="btn btn-ghost btn-sm">View All</a>
+      </div>
+
+      <% if (!recentLeads || recentLeads.length === 0) { %>
+        <div class="empty-state" style="padding:32px 20px;">
+          <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <p>No leads yet.</p>
+        </div>
+      <% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th><th>Source</th><th>Status</th><th>Follow-Up</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentLeads.forEach(lead => { %>
+            <tr>
+              <td>
+                <div class="lead-name"><%= lead.name %></div>
+                <div class="lead-email"><%= lead.email || lead.phone || '' %></div>
+              </td>
+              <td><span class="source-tag"><%= lead.source %></span></td>
+              <td><span class="badge <%= lead.status === 'New' ? 'badge-new' : lead.status === 'In Progress' ? 'badge-progress' : 'badge-closed' %>"><%= lead.status %></span></td>
+              <td style="font-size:12.5px; color:var(--text-muted);"><%= lead.follow_up_date ? moment(lead.follow_up_date).format('DD MMM') : '—' %></td>
+              <td><a href="/leads/<%= lead.id %>/edit" class="btn btn-outline btn-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></a></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+
+  </div><!-- /.profile-right -->
+
+</div><!-- /.profile-layout -->
+
+<%- include('partials/footer') %>
