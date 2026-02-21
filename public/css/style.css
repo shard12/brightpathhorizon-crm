@@ -364,7 +364,7 @@ input:checked+.toggle-slider::before{transform:translateX(20px)}
 .left-content h1{font-size:56px;font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-top:10vh;margin-bottom:32px}
 .left-content p{font-size:16px;line-height:1.85;opacity:.88;max-width:420px}
 .left-footer{position:absolute;bottom:32px;left:0;width:100%;text-align:center;font-size:12.5px;opacity:.6}
-.right-panel{width:460px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:48px 40px}
+.right-panel{width:460px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:center;padding:48px 40px;position:relative;}
 .login-box{width:100%;max-width:340px}
 .login-box h2{font-size:16px;font-weight:600;color:#111827;margin-bottom:32px}
 .login-box h3{font-size:28px;font-weight:700;color:#111827;margin-bottom:6px;letter-spacing:-.4px}
