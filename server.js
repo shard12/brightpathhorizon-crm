@@ -14,7 +14,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ─── Security ─────────────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://cdnjs.cloudflare.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:"],
+      },
+    },
+  })
+);
 
 // ─── View Engine ──────────────────────────────────────────────────────────────
 app.set('view engine', 'ejs');

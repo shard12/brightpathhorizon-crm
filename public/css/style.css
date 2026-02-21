@@ -406,3 +406,10 @@ input:checked+.toggle-slider::before{transform:translateX(20px)}
 }
 @media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr}.profile-stats-grid{grid-template-columns:1fr 1fr}.dash-welcome{flex-direction:column}}
 @media(max-width:420px){.stats-grid{grid-template-columns:1fr}.pagination-bar{flex-direction:column;align-items:flex-start}}
+
+
+/* Fix: allow flex children to not inherit full viewport height */
+.content { min-height: 0; }
+
+/* Fix: chart rows should not stretch to fill height */
+.chart-row { align-items: start; }
